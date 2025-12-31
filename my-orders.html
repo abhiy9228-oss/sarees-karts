@@ -1,43 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Orders</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>My Orders</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
     <h1>My Orders</h1>
     <nav>
-        <a href="index.html">Home</a>
+        <a href="index.html">← Home</a>
     </nav>
 </header>
 
-<section id="orders" style="padding:20px;"></section>
+<section style="padding:20px;max-width:700px;margin:auto;">
+
+<div id="orders-box"></div>
+
+<p id="no-orders" style="display:none;color:#777;">
+No orders found
+</p>
+
+</section>
 
 <script>
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-const container = document.getElementById("orders");
+const orders = JSON.parse(localStorage.getItem("orders")) || [];
+const box = document.getElementById("orders-box");
 
 if (orders.length === 0) {
-    container.innerHTML = "<p>No active orders.</p>";
+    document.getElementById("no-orders").style.display = "block";
 }
 
 orders.forEach(order => {
-    if (order.status === "pending") {
-        let div = document.createElement("div");
-        div.style.border = "1px solid #ddd";
-        div.style.padding = "10px";
-        div.style.marginBottom = "10px";
 
-        div.innerHTML = `
-            <h3>Order ID: ${order.orderId}</h3>
-            <p>Status: 🚚 Out for delivery</p>
-            <p><strong>OTP:</strong> ${order.otp}</p>
-        `;
+    const div = document.createElement("div");
+    div.style.border = "1px solid #ddd";
+    div.style.padding = "15px";
+    div.style.borderRadius = "8px";
+    div.style.marginBottom = "15px";
 
-        container.appendChild(div);
-    }
+    let itemsHTML = "";
+    order.items.forEach(i => {
+        itemsHTML += `
+        <div style="display:flex;align-items:center;margin:6px 0;">
+            <img src="${i.image}" width="50" style="margin-right:10px;border-radius:5px;">
+            ${i.name} – ₹${i.price}
+        </div>`;
+    });
+
+    div.innerHTML = `
+        <h3>Order ID: ${order.orderId}</h3>
+        <p><b>Status:</b> ${order.status}</p>
+        <p><b>Payment:</b> ${order.paymentMode}</p>
+        <p><b>Total:</b> ₹${order.total}</p>
+        <p><b>Delivery OTP:</b> ${order.otp}</p>
+        <hr>
+        ${itemsHTML}
+    `;
+
+    box.appendChild(div);
 });
 </script>
 
