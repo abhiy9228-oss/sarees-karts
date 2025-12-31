@@ -197,24 +197,72 @@ function confirmPayment(paymentMode) {
     localStorage.setItem("orders", JSON.stringify(orders));
 
     // 📲 WhatsApp message to ADMIN
-    let msg = "Hello Admin 👋%0A%0A";
-msg += "🛍️ New Saree Order Received%0A%0A";
+   
+function sendWhatsAppMessage(paymentMode) {
 
-cart.forEach(item => {
-    msg += `• ${item.name} – ₹${item.price}%0A`;
-    msg += `Image: ${item.image}%0A%0A`;
-});
+    // User details (from checkout form)
+    const name = document.getElementById("customer-name").value;
+    const mobile = document.getElementById("customer-mobile").value;
+    const address = document.getElementById("customer-address").value;
 
-msg += `Total Amount: ₹${total}%0A`;
-msg += `Payment Method: ${paymentMode}%0A%0A`;
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-msg += "🔐 Admin Verification Link:%0A";
-msg += "https://abhiy9228-oss.github.io/sareekart/admin-dashboard.html";
+    // Generate Order ID & OTP
+    const orderId = "ORD" + Math.floor(100000 + Math.random() * 900000);
+    const otp = Math.floor(100000 + Math.random() * 900000);
 
-let adminNumber = "918019973283"; // ✅ with country code
-let whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
+    let msg = "";
+    msg += "🛍️ New Saree Order\n\n";
 
-window.open(whatsappURL, "_blank");
+    msg += `👤 Name: ${name}%0A`;
+    msg += `📞 Mobile: ${mobile}%0A`;
+    msg += `🏠 Address: ${address}%0A%0A`;
+
+    let total = 0;
+
+    cart.forEach(item => {
+        msg += `• ${item.name} – ₹${item.price}%0A`;
+        msg += `${item.image}%0A%0A`;
+        total += Number(item.price);
+    });
+
+    msg += `💰 Total: ₹${total}%0A`;
+    msg += `💳 Payment: ${paymentMode}%0A`;
+    msg += `🆔 Order ID: ${orderId}%0A`;
+    msg += `🔐 Delivery OTP: ${otp}%0A%0A`;
+
+    msg += `🔑 Admin Dashboard:%0A`;
+    msg += `https://abhiy9228-oss.github.io/sareekart/admin-dashboard.html`;
+
+    // ✅ Admin WhatsApp number WITH country code
+    const adminNumber = "918019973283";
+
+    const whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
+
+    // Save order for My Orders / Admin Dashboard
+    localStorage.setItem("lastOrder", JSON.stringify({
+        orderId,
+        otp,
+        cart,
+        name,
+        mobile,
+        address,
+        total,
+        paymentMode
+    }));
+
+    // Clear cart
+    localStorage.removeItem("cart");
+
+    // Open WhatsApp
+    window.open(whatsappURL, "_blank");
+
+    // Redirect after 1 second
+    setTimeout(() => {
+        window.location.href = "my-orders.html";
+    }, 1000);
+}
+
 
     // ⚠️ must be direct click
     window.open(whatsappURL, "_blank");
