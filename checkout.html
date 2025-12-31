@@ -197,27 +197,24 @@ function confirmPayment(paymentMode) {
     localStorage.setItem("orders", JSON.stringify(orders));
 
     // 📲 WhatsApp message to ADMIN
-    let msg = "🛍️ *New Saree Order*%0A%0A";
-    msg += "👤 Name: " + name + "%0A";
-    msg += "📞 Mobile: " + mobile + "%0A";
-    msg += "🏠 Address: " + address + "%0A%0A";
+    let msg = "Hello Admin 👋%0A%0A";
+msg += "🛍️ New Saree Order Received%0A%0A";
 
-    cart.forEach(item => {
-        msg += "• " + item.name + " – ₹" + item.price + "%0A";
-        msg += "📸 " + item.image + "%0A%0A";
-        total += item.price;
-    });
+cart.forEach(item => {
+    msg += `• ${item.name} – ₹${item.price}%0A`;
+    msg += `Image: ${item.image}%0A%0A`;
+});
 
-    msg += "💰 Total: ₹" + total + "%0A";
-    msg += "💳 Payment: " + paymentMode + "%0A";
-    msg += "🆔 Order ID: " + orderId + "%0A";
-    msg += "🔐 Delivery OTP: " + otp;
-    msg += "%0A🧑‍💼 Admin Dashboard:%0A";
-    msg += "https://YOUR_USERNAME.github.io/YOUR_REPO/admin-dashboard.html";
+msg += `Total Amount: ₹${total}%0A`;
+msg += `Payment Method: ${paymentMode}%0A%0A`;
 
+msg += "🔐 Admin Verification Link:%0A";
+msg += "https://abhiy9228-oss.github.io/sareekart/admin-dashboard.html";
 
-    let adminNumber = "918019973283";
-    let whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
+let adminNumber = "918019973283"; // ✅ with country code
+let whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
+
+window.open(whatsappURL, "_blank");
 
     // ⚠️ must be direct click
     window.open(whatsappURL, "_blank");
@@ -289,5 +286,3 @@ document.getElementById("confirm-details-btn").onclick = function () {
 
 </body>
 </html>
-
-
