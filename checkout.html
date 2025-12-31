@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Checkout</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Checkout</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -14,299 +14,94 @@
     </nav>
 </header>
 
-<section id="checkout-section" style="padding:20px;max-width:600px;margin:auto;">
+<section style="padding:20px;max-width:600px;margin:auto;">
 
-    <!-- ORDER SUMMARY -->
-    <div id="checkout-items"></div>
+<!-- ORDER SUMMARY -->
+<div id="checkout-items"></div>
+<h2>Total Amount: ₹<span id="checkout-total">0</span></h2>
 
-    <h2>Total Amount: ₹<span id="checkout-total">0</span></h2>
+<hr>
 
-    <hr><br>
-
-    <!-- 👤 CUSTOMER DETAILS -->
+<!-- DELIVERY DETAILS -->
 <h3>Delivery Details</h3>
 
-<input type="text" id="cust-name" placeholder="Full Name"
-       style="width:100%;padding:10px;margin:8px 0;">
+<input id="cust-name" placeholder="Full Name"
+style="width:100%;padding:10px;margin:6px 0;">
 
-<input type="tel" id="cust-mobile" placeholder="Mobile Number"
-       style="width:100%;padding:10px;margin:8px 0;">
+<input id="cust-mobile" placeholder="Mobile Number"
+style="width:100%;padding:10px;margin:6px 0;">
 
 <textarea id="cust-address" placeholder="Delivery Address"
-          style="width:100%;padding:10px;margin:8px 0;"></textarea>
+style="width:100%;padding:10px;margin:6px 0;"></textarea>
 
-
- <!-- ✅ CONFIRM DELIVERY DETAILS -->
 <button id="confirm-details-btn"
-    style="background:#2196F3;color:white;padding:10px 15px;border:none;border-radius:5px;cursor:pointer;">
-    Done
+style="background:#2196F3;color:white;padding:10px 15px;border:none;border-radius:5px;">
+Done
 </button>
 
-<p id="details-msg" style="color:red;margin-top:10px;display:none;">
-    Please fill delivery details and click DONE to continue
+<p id="details-msg" style="color:red;display:none;margin-top:8px;">
+Please fill delivery details and click DONE
 </p>
 
-<hr><br>
+<hr>
 
-<hr><br>
+<!-- PAYMENT OPTIONS -->
+<h3>Select Payment Method</h3>
 
-
-    <!-- PAYMENT OPTIONS -->
-    <h3>Select Payment Method</h3>
-
-    <div class="payment-radio disabled" onclick="selectPayment('online')">
-    <input type="radio" name="payment" disabled>
-    <span class="custom-radio"></span>
-    <label>💳 Online Payment</label>
+<div class="payment-radio disabled" onclick="selectPayment('online')">
+<input type="radio" disabled> 💳 Online Payment
 </div>
 
 <div class="payment-radio disabled" onclick="selectPayment('cod')">
-    <input type="radio" name="payment" disabled>
-    <span class="custom-radio"></span>
-    <label>🚚 Cash on Delivery</label>
+<input type="radio" disabled> 🚚 Cash on Delivery
 </div>
 
-
-    <!-- ONLINE PAYMENT SECTION -->
-    <div id="online-section" style="display:none;margin-top:20px;">
-        <h3>Pay using UPI</h3>
-        <p><strong>UPI ID:</strong> 9876543210@upi</p>
-
-        <img src="images/upi-qr.png"
-             style="width:200px;border:1px solid #ccc;margin-top:10px;">
-
-        <br><br>
-       <button onclick="confirmPayment('Online Payment')"
-            style="background:#4CAF50;color:white;padding:10px 15px;border:none;border-radius:5px;">
-             I Have Paid
-        </button>
-
-    </div>
-
-    <!-- COD SECTION -->
-    <div id="cod-section" style="display:none;margin-top:20px;">
-        <h3 style="color:green;">✅ Order Ready</h3>
-        <p>Payment Mode: Cash on Delivery</p>
-<button onclick="confirmPayment('Cash on Delivery')"
-style="background:#e91e63;color:white;padding:10px 15px;border:none;border-radius:5px;">
-    Confirm Order
+<!-- ONLINE PAYMENT -->
+<div id="online-section" style="display:none;margin-top:15px;">
+<p><b>UPI:</b> 9876543210@upi</p>
+<img src="images/upi-qr.png" width="200"><br><br>
+<button onclick="confirmOrder('Online Payment')"
+style="background:#4CAF50;color:white;padding:10px;border:none;border-radius:5px;">
+I Have Paid
 </button>
+</div>
 
-    </div>
+<!-- COD -->
+<div id="cod-section" style="display:none;margin-top:15px;">
+<button id="cod-confirm-btn"
+style="background:#e91e63;color:white;padding:10px;border:none;border-radius:5px;">
+Confirm Order
+</button>
+</div>
 
 </section>
 
 <script>
-/* LOAD CART ITEMS */
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-let total = 0;
-
-const checkoutDiv = document.getElementById("checkout-items");
-
-cart.forEach(item => {
-    const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.marginBottom = "10px";
-
-    div.innerHTML = `
-        <img src="${item.image}" 
-             style="width:70px;height:70px;border-radius:5px;margin-right:10px;">
-        <div>
-            <strong>${item.name}</strong>
-            <p>₹${item.price}</p>
-        </div>
-    `;
-
-    checkoutDiv.appendChild(div);
-    total += item.price;
-});
-
-document.getElementById("checkout-total").textContent = total;
-
-/* PAYMENT SELECTION ANIMATION */
-
-function selectPayment(type) {
-
-    if (!detailsConfirmed) {
-        document.getElementById("details-msg").style.display = "block";
-        return;
-    }
-
-    document.querySelectorAll(".payment-radio").forEach(p => {
-        p.classList.remove("active");
-    });
-
-    if (type === "online") {
-        document.querySelectorAll(".payment-radio")[0].classList.add("active");
-        document.getElementById("online-section").style.display = "block";
-        document.getElementById("cod-section").style.display = "none";
-    }
-
-    if (type === "cod") {
-        document.querySelectorAll(".payment-radio")[1].classList.add("active");
-        document.getElementById("cod-section").style.display = "block";
-        document.getElementById("online-section").style.display = "none";
-    }
-}
-
-
-
-/* ✅ STEP-2: ORDER + OTP LOGIC (REPLACED HERE) */
-
-
-function confirmPayment(paymentMode) {
-
-    if (!detailsConfirmed) {
-        alert("Please confirm delivery details first");
-        return;
-    }
-
-    const name = document.getElementById("cust-name").value.trim();
-    const mobile = document.getElementById("cust-mobile").value.trim();
-    const address = document.getElementById("cust-address").value.trim();
-
-    if (!name || !mobile || !address) {
-        alert("Missing delivery details");
-        return;
-    }
-
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (cart.length === 0) {
-        alert("Cart is empty");
-        return;
-    }
-
-    let total = 0;
-    let orderId = "ORD" + Math.floor(100000 + Math.random() * 900000);
-    let otp = Math.floor(100000 + Math.random() * 900000);
-
-    // Save order for admin
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push({
-        orderId,
-        name,
-        mobile,
-        address,
-        items: cart,
-        total,
-        paymentMode,
-        otp,
-        status: "Pending"
-    });
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    // 📲 WhatsApp message to ADMIN
-   
-function sendWhatsAppMessage(paymentMode) {
-
-    // User details (from checkout form)
-    const name = document.getElementById("customer-name").value;
-    const mobile = document.getElementById("customer-mobile").value;
-    const address = document.getElementById("customer-address").value;
-
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    // Generate Order ID & OTP
-    const orderId = "ORD" + Math.floor(100000 + Math.random() * 900000);
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
-    let msg = "";
-    msg += "🛍️ New Saree Order\n\n";
-
-    msg += `👤 Name: ${name}%0A`;
-    msg += `📞 Mobile: ${mobile}%0A`;
-    msg += `🏠 Address: ${address}%0A%0A`;
-
-    let total = 0;
-
-    cart.forEach(item => {
-        msg += `• ${item.name} – ₹${item.price}%0A`;
-        msg += `${item.image}%0A%0A`;
-        total += Number(item.price);
-    });
-
-    msg += `💰 Total: ₹${total}%0A`;
-    msg += `💳 Payment: ${paymentMode}%0A`;
-    msg += `🆔 Order ID: ${orderId}%0A`;
-    msg += `🔐 Delivery OTP: ${otp}%0A%0A`;
-
-    msg += `🔑 Admin Dashboard:%0A`;
-    msg += `https://abhiy9228-oss.github.io/sareekart/admin-dashboard.html`;
-
-    // ✅ Admin WhatsApp number WITH country code
-    const adminNumber = "918019973283";
-
-    const whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
-
-    // Save order for My Orders / Admin Dashboard
-    localStorage.setItem("lastOrder", JSON.stringify({
-        orderId,
-        otp,
-        cart,
-        name,
-        mobile,
-        address,
-        total,
-        paymentMode
-    }));
-
-    // Clear cart
-    localStorage.removeItem("cart");
-
-    // Open WhatsApp
-    window.open(whatsappURL, "_blank");
-
-    // Redirect after 1 second
-    setTimeout(() => {
-        window.location.href = "my-orders.html";
-    }, 1000);
-}
-
-
-    // ⚠️ must be direct click
-    window.open(whatsappURL, "_blank");
-
-    localStorage.removeItem("cart");
-
-    setTimeout(() => {
-        window.location.href = "index.html";
-    }, 1000);
-}
-
-
-
-
-
-
-
-
-function getCustomerDetails() {
-    const name = document.getElementById("cust-name").value.trim();
-    const mobile = document.getElementById("cust-mobile").value.trim();
-    const address = document.getElementById("cust-address").value.trim();
-
-    if (!name || !mobile || !address) {
-        alert("Please fill all delivery details");
-        return null;
-    }
-
-    if (mobile.length !== 10 || isNaN(mobile)) {
-        alert("Please enter a valid 10-digit mobile number");
-        return null;
-    }
-
-    return { name, mobile, address };
-}
-</script>
-<script>
 let detailsConfirmed = false;
 
-document.getElementById("confirm-details-btn").onclick = function () {
+/* SHOW CART */
+let total = 0;
+const box = document.getElementById("checkout-items");
 
-    const name = document.getElementById("cust-name").value.trim();
-    const mobile = document.getElementById("cust-mobile").value.trim();
-    const address = document.getElementById("cust-address").value.trim();
+cart.forEach(item => {
+    box.innerHTML += `
+    <div style="display:flex;align-items:center;margin-bottom:10px;">
+        <img src="${item.image}" width="60"
+        style="margin-right:10px;border-radius:5px">
+        <div>${item.name}<br>₹${item.price}</div>
+    </div>`;
+    total += Number(item.price);
+});
+
+document.getElementById("checkout-total").innerText = total;
+
+/* CONFIRM DELIVERY DETAILS */
+document.getElementById("confirm-details-btn").onclick = () => {
+
+    const name = custName.value.trim();
+    const mobile = custMobile.value.trim();
+    const address = custAddress.value.trim();
 
     if (!name || !mobile || !address) {
         document.getElementById("details-msg").style.display = "block";
@@ -320,16 +115,86 @@ document.getElementById("confirm-details-btn").onclick = function () {
 
     detailsConfirmed = true;
 
-    // Unlock payment options
-    document.querySelectorAll(".payment-radio").forEach(opt => {
-        opt.classList.remove("disabled");
-        opt.querySelector("input").disabled = false;
+    document.querySelectorAll(".payment-radio").forEach(p => {
+        p.classList.remove("disabled");
+        p.querySelector("input").disabled = false;
     });
 
     document.getElementById("details-msg").style.display = "none";
-
-    alert("Delivery details confirmed. Please select payment method.");
 };
+
+/* PAYMENT SELECTION */
+function selectPayment(type) {
+
+    if (!detailsConfirmed) {
+        document.getElementById("details-msg").style.display = "block";
+        return;
+    }
+
+    document.getElementById("online-section").style.display =
+        type === "online" ? "block" : "none";
+
+    document.getElementById("cod-section").style.display =
+        type === "cod" ? "block" : "none";
+}
+
+/* CONFIRM ORDER (ONLINE + COD) */
+function confirmOrder(paymentMode) {
+
+    if (!detailsConfirmed) {
+        alert("Confirm delivery details first");
+        return;
+    }
+
+    const name = custName.value.trim();
+    const mobile = custMobile.value.trim();
+    const address = custAddress.value.trim();
+
+    if (!name || !mobile || !address || cart.length === 0) {
+        alert("Invalid order details");
+        return;
+    }
+
+    const orderId = "ORD" + Math.floor(100000 + Math.random()*900000);
+    const otp = Math.floor(100000 + Math.random()*900000);
+
+    let msg = "🛍️ New Saree Order\n\n";
+    msg += `👤 Name: ${name}%0A`;
+    msg += `📞 Mobile: ${mobile}%0A`;
+    msg += `🏠 Address: ${address}%0A%0A`;
+
+    let sum = 0;
+    cart.forEach(i => {
+        msg += `• ${i.name} – ₹${i.price}%0A`;
+        msg += `${i.image}%0A%0A`;
+        sum += Number(i.price);
+    });
+
+    msg += `💰 Total: ₹${sum}%0A`;
+    msg += `💳 Payment: ${paymentMode}%0A`;
+    msg += `🆔 Order ID: ${orderId}%0A`;
+    msg += `🔐 Delivery OTP: ${otp}%0A%0A`;
+    msg += `🔑 Admin Dashboard:%0A`;
+    msg += `https://abhiy9228-oss.github.io/sareekart/admin-dashboard.html`;
+
+    window.open(`https://wa.me/918019973283?text=${msg}`, "_blank");
+
+    localStorage.removeItem("cart");
+
+    setTimeout(() => {
+        window.location.href = "my-orders.html";
+    }, 800);
+}
+
+/* FORCE COD BUTTON CLICK */
+document.getElementById("cod-confirm-btn").onclick = () => {
+    confirmOrder("Cash on Delivery");
+};
+
+/* INPUT REFERENCES */
+const custName = document.getElementById("cust-name");
+const custMobile = document.getElementById("cust-mobile");
+const custAddress = document.getElementById("cust-address");
 </script>
 
 </body>
