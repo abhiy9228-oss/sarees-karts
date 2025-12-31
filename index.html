@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SareeKart</title>
+    <link rel="stylesheet" href="style.css">
+    
+
+</head>
+<body>
+
+<!-- 🎆 SPLASH SCREEN -->
+<div id="splash">
+    <div class="fireworks">
+        <span class="firework"></span>
+        <span class="firework"></span>
+        <span class="firework"></span>
+        <span class="firework"></span>
+        <span class="firework"></span>
+    </div>
+    <div class="splash-content">
+        <h1>Happy New Year 🎉</h1>
+        <p>Welcome to SareeKart</p>
+    </div>
+</div>
+
+<!-- 🌐 MAIN CONTENT -->
+<div id="main-content" style="display:none;">
+
+<header>
+    <h1>SareeKart</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Sarees</a>
+        <a href="cart.html">Cart</a>
+        <a href="my-orders.html">My Orders</a>
+    </nav>
+</header>
+
+<section class="banner">
+    <div class="delivery-animation">
+        <img src="images/panda-scooty.png" class="panda-scooty">
+        <span class="delivery-text">Delivery in 3 hours ⚡</span>
+    </div>
+    <h2>Beautiful Sarees at Best Prices</h2>
+    <p>Free Delivery | Cash on Delivery</p>
+</section>
+
+<a href="cart.html">
+    <button style="margin:20px;background:#e91e63;color:white;padding:10px;border:none;border-radius:5px;">
+        Go to Cart
+    </button>
+</a>
+
+<!-- PRODUCTS -->
+<section class="products">
+
+<!-- SILK SAREE -->
+<div class="card">
+    <div class="discount-badge" data-base="1299" data-sell="999"></div>
+
+    <img id="silk1-main" src="images/silk1.jpg" class="main-img">
+
+    <h3>Silk Saree</h3>
+    <p>
+        <span class="base-price">₹1299</span>
+        <span class="sell-price">₹999</span>
+    </p>
+
+    <div class="thumbs">
+        <img src="images/silk1.jpg" onclick="changeImage('silk1-main', this.src)">
+        <img src="images/silk2.jpg" onclick="changeImage('silk1-main', this.src)">
+        <img src="images/silk3.jpg" onclick="changeImage('silk1-main', this.src)">
+    </div>
+
+    <button onclick="addToCart('Silk Saree',999,1299,document.getElementById('silk1-main').src,this)">
+        Add to Cart
+    </button>
+</div>
+
+<!-- COTTON SAREE -->
+<div class="card">
+    <div class="discount-badge" data-base="999" data-sell="699"></div>
+
+    <img id="cotton-main" src="images/saree2.jpg" class="main-img">
+
+    <h3>Cotton Saree</h3>
+    <p>
+        <span class="base-price">₹999</span>
+        <span class="sell-price">₹699</span>
+    </p>
+
+    <button onclick="addToCart('Cotton Saree',699,999,document.getElementById('cotton-main').src,this)">
+        Add to Cart
+    </button>
+</div>
+
+</section>
+
+<footer>
+    <p>© 2025 SareeKart</p>
+</footer>
+
+</div>
+
+<!-- SCRIPTS -->
+<script>
+function changeImage(id, src) {
+    document.getElementById(id).src = src;
+}
+
+function addToCart(name, price, basePrice, image, btn) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push({ name, price, basePrice, image });
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    btn.classList.add("added");
+    setTimeout(() => btn.classList.remove("added"), 1000);
+}
+
+window.onload = function () {
+    setTimeout(() => {
+        document.getElementById("splash").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+    }, 1000);
+};
+
+document.querySelectorAll(".discount-badge").forEach(badge => {
+    const base = parseInt(badge.dataset.base);
+    const sell = parseInt(badge.dataset.sell);
+    const discount = Math.round(((base - sell) / base) * 100);
+    badge.innerText = discount + "% OFF";
+});
+</script>
+
+</body>
+</html>

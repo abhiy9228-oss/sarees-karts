@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>🧑‍💼 Admin Dashboard</h1>
+</header>
+
+<section style="padding:20px;max-width:900px;margin:auto;">
+    <h2>Active Orders</h2>
+    <div id="orders-container"></div>
+</section>
+
+<script>
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+const container = document.getElementById("orders-container");
+
+function renderOrders() {
+    container.innerHTML = "";
+
+    if (orders.length === 0) {
+        container.innerHTML = "<p>No active orders 🎉</p>";
+        return;
+    }
+
+    orders.forEach((order, index) => {
+
+        let itemsHTML = "";
+        order.items.forEach(item => {
+            itemsHTML += `
+                <div style="display:flex;align-items:center;margin-bottom:8px;">
+                    <img src="${item.image}"
+                         style="width:60px;height:60px;border-radius:5px;margin-right:10px;">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        ₹${item.price}
+                    </div>
+                </div>
+            `;
+        });
+
+        const card = document.createElement("div");
+        card.style.border = "2px solid #e91e63";
+        card.style.borderRadius = "10px";
+        card.style.padding = "15px";
+        card.style.marginBottom = "20px";
+        card.style.background = "#fff0f5";
+
+        card.innerHTML = `
+            <h3>Order ID: ${order.orderId}</h3>
+            <p><strong>Name:</strong> ${order.name}</p>
+            <p><strong>Mobile:</strong> ${order.mobile}</p>
+            <p><strong>Address:</strong> ${order.address}</p>
+            <p><strong>Payment:</strong> ${order.paymentMode}</p>
+            <p><strong>Total:</strong> ₹${order.total}</p>
+
+            <h4>Items</h4>
+            ${itemsHTML}
+
+            <hr>
+
+            <label><strong>Enter Delivery OTP</strong></label><br>
+            <input type="number" id="otp-${index}"
+                   placeholder="Enter OTP"
+                   style="padding:8px;width:150px;margin-top:5px;">
+
+            <button onclick="verifyOTP(${index})"
+                style="background:#4CAF50;color:white;padding:8px 15px;border:none;border-radius:5px;margin-left:10px;">
+                Verify & Mark Delivered
+            </button>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+function verifyOTP(index) {
+    const enteredOTP = document.getElementById(`otp-${index}`).value;
+
+    if (enteredOTP == orders[index].otp) {
+        alert("✅ Order Delivered Successfully");
+
+        orders.splice(index, 1);
+        localStorage.setItem("orders", JSON.stringify(orders));
+
+        renderOrders();
+    } else {
+        alert("❌ Invalid OTP");
+    }
+}
+
+renderOrders();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Your Cart</h1>
+    <nav>
+        <a href="index.html">← Back to Shop</a>
+    </nav>
+</header>
+
+<section id="cart-section">
+    <div id="cart-items"></div>
+
+    <h3>Total: ₹<span id="total-price">0</span></h3>
+
+    <!-- ✅ CHECKOUT BUTTON -->
+    <a href="checkout.html">
+        <button style="
+            background:#4CAF50;
+            color:white;
+            padding:10px 15px;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            margin-right:10px;">
+            Proceed to Checkout
+        </button>
+    </a>
+
+    <!-- CLEAR CART BUTTON -->
+    <button onclick="clearCart()"
+        style="
+        background:#e91e63;
+        color:white;
+        padding:10px 15px;
+        border:none;
+        border-radius:5px;
+        cursor:pointer;">
+        Clear Cart
+    </button>
+</section>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let total = 0;
+
+const cartItemsDiv = document.getElementById("cart-items");
+
+function renderCart() {
+    cartItemsDiv.innerHTML = "";
+    total = 0;
+
+    cart.forEach((item, index) => {
+
+        let discountPercent = Math.round(
+            ((item.basePrice - item.price) / item.basePrice) * 100
+        );
+
+        const itemDiv = document.createElement("div");
+        itemDiv.style.display = "flex";
+        itemDiv.style.justifyContent = "space-between";
+        itemDiv.style.alignItems = "center";
+        itemDiv.style.borderBottom = "1px solid #ddd";
+        itemDiv.style.padding = "12px 0";
+
+        itemDiv.innerHTML = `
+            <div style="display:flex;align-items:center;">
+                <img src="${item.image}"
+                     style="width:80px;height:80px;border-radius:5px;margin-right:10px;">
+
+                <div>
+                    <h4 style="margin:0;">${item.name}</h4>
+
+                    <div>
+                        <span style="text-decoration:line-through;color:#888;">
+                            ₹${item.basePrice}
+                        </span>
+                        &nbsp;
+                        <strong>₹${item.price}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:right;">
+                <span style="color:#4CAF50;font-weight:bold;">
+                    ${discountPercent}% OFF
+                </span>
+                <br><br>
+                <button onclick="removeItem(${index})"
+                    style="
+                    background:#ff4444;
+                    color:white;
+                    border:none;
+                    width:30px;
+                    height:30px;
+                    border-radius:50%;
+                    cursor:pointer;
+                    font-size:16px;">
+                    −
+                </button>
+            </div>
+        `;
+
+        cartItemsDiv.appendChild(itemDiv);
+        total += item.price;
+    });
+
+    document.getElementById("total-price").textContent = total;
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+}
+
+function clearCart() {
+    localStorage.removeItem("cart");
+    cart = [];
+    renderCart();
+}
+
+renderCart();
+</script>
+
+</body>
+</html>

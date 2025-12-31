@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>Checkout</h1>
+    <nav>
+        <a href="cart.html">← Back to Cart</a>
+    </nav>
+</header>
+
+<section id="checkout-section" style="padding:20px;max-width:600px;margin:auto;">
+
+    <!-- ORDER SUMMARY -->
+    <div id="checkout-items"></div>
+
+    <h2>Total Amount: ₹<span id="checkout-total">0</span></h2>
+
+    <hr><br>
+
+    <!-- 👤 CUSTOMER DETAILS -->
+<h3>Delivery Details</h3>
+
+<input type="text" id="cust-name" placeholder="Full Name"
+       style="width:100%;padding:10px;margin:8px 0;">
+
+<input type="tel" id="cust-mobile" placeholder="Mobile Number"
+       style="width:100%;padding:10px;margin:8px 0;">
+
+<textarea id="cust-address" placeholder="Delivery Address"
+          style="width:100%;padding:10px;margin:8px 0;"></textarea>
+
+
+ <!-- ✅ CONFIRM DELIVERY DETAILS -->
+<button id="confirm-details-btn"
+    style="background:#2196F3;color:white;padding:10px 15px;border:none;border-radius:5px;cursor:pointer;">
+    Done
+</button>
+
+<p id="details-msg" style="color:red;margin-top:10px;display:none;">
+    Please fill delivery details and click DONE to continue
+</p>
+
+<hr><br>
+
+<hr><br>
+
+
+    <!-- PAYMENT OPTIONS -->
+    <h3>Select Payment Method</h3>
+
+    <div class="payment-radio disabled" onclick="selectPayment('online')">
+    <input type="radio" name="payment" disabled>
+    <span class="custom-radio"></span>
+    <label>💳 Online Payment</label>
+</div>
+
+<div class="payment-radio disabled" onclick="selectPayment('cod')">
+    <input type="radio" name="payment" disabled>
+    <span class="custom-radio"></span>
+    <label>🚚 Cash on Delivery</label>
+</div>
+
+
+    <!-- ONLINE PAYMENT SECTION -->
+    <div id="online-section" style="display:none;margin-top:20px;">
+        <h3>Pay using UPI</h3>
+        <p><strong>UPI ID:</strong> 9876543210@upi</p>
+
+        <img src="images/upi-qr.png"
+             style="width:200px;border:1px solid #ccc;margin-top:10px;">
+
+        <br><br>
+       <button onclick="confirmPayment('Online Payment')"
+            style="background:#4CAF50;color:white;padding:10px 15px;border:none;border-radius:5px;">
+             I Have Paid
+        </button>
+
+    </div>
+
+    <!-- COD SECTION -->
+    <div id="cod-section" style="display:none;margin-top:20px;">
+        <h3 style="color:green;">✅ Order Ready</h3>
+        <p>Payment Mode: Cash on Delivery</p>
+<button onclick="confirmPayment('Cash on Delivery')"
+style="background:#e91e63;color:white;padding:10px 15px;border:none;border-radius:5px;">
+    Confirm Order
+</button>
+
+    </div>
+
+</section>
+
+<script>
+/* LOAD CART ITEMS */
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let total = 0;
+
+const checkoutDiv = document.getElementById("checkout-items");
+
+cart.forEach(item => {
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.marginBottom = "10px";
+
+    div.innerHTML = `
+        <img src="${item.image}" 
+             style="width:70px;height:70px;border-radius:5px;margin-right:10px;">
+        <div>
+            <strong>${item.name}</strong>
+            <p>₹${item.price}</p>
+        </div>
+    `;
+
+    checkoutDiv.appendChild(div);
+    total += item.price;
+});
+
+document.getElementById("checkout-total").textContent = total;
+
+/* PAYMENT SELECTION ANIMATION */
+
+function selectPayment(type) {
+
+    if (!detailsConfirmed) {
+        document.getElementById("details-msg").style.display = "block";
+        return;
+    }
+
+    document.querySelectorAll(".payment-radio").forEach(p => {
+        p.classList.remove("active");
+    });
+
+    if (type === "online") {
+        document.querySelectorAll(".payment-radio")[0].classList.add("active");
+        document.getElementById("online-section").style.display = "block";
+        document.getElementById("cod-section").style.display = "none";
+    }
+
+    if (type === "cod") {
+        document.querySelectorAll(".payment-radio")[1].classList.add("active");
+        document.getElementById("cod-section").style.display = "block";
+        document.getElementById("online-section").style.display = "none";
+    }
+}
+
+
+
+/* ✅ STEP-2: ORDER + OTP LOGIC (REPLACED HERE) */
+
+
+function confirmPayment(paymentMode) {
+
+    if (!detailsConfirmed) {
+        alert("Please confirm delivery details first");
+        return;
+    }
+
+    const name = document.getElementById("cust-name").value.trim();
+    const mobile = document.getElementById("cust-mobile").value.trim();
+    const address = document.getElementById("cust-address").value.trim();
+
+    if (!name || !mobile || !address) {
+        alert("Missing delivery details");
+        return;
+    }
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (cart.length === 0) {
+        alert("Cart is empty");
+        return;
+    }
+
+    let total = 0;
+    let orderId = "ORD" + Math.floor(100000 + Math.random() * 900000);
+    let otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Save order for admin
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    orders.push({
+        orderId,
+        name,
+        mobile,
+        address,
+        items: cart,
+        total,
+        paymentMode,
+        otp,
+        status: "Pending"
+    });
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    // 📲 WhatsApp message to ADMIN
+    let msg = "🛍️ *New Saree Order*%0A%0A";
+    msg += "👤 Name: " + name + "%0A";
+    msg += "📞 Mobile: " + mobile + "%0A";
+    msg += "🏠 Address: " + address + "%0A%0A";
+
+    cart.forEach(item => {
+        msg += "• " + item.name + " – ₹" + item.price + "%0A";
+        msg += "📸 " + item.image + "%0A%0A";
+        total += item.price;
+    });
+
+    msg += "💰 Total: ₹" + total + "%0A";
+    msg += "💳 Payment: " + paymentMode + "%0A";
+    msg += "🆔 Order ID: " + orderId + "%0A";
+    msg += "🔐 Delivery OTP: " + otp;
+    msg += "%0A🧑‍💼 Admin Dashboard:%0A";
+    msg += "https://YOUR_USERNAME.github.io/YOUR_REPO/admin-dashboard.html";
+
+
+    let adminNumber = "8019973283";
+    let whatsappURL = `https://wa.me/${adminNumber}?text=${msg}`;
+
+    // ⚠️ must be direct click
+    window.open(whatsappURL, "_blank");
+
+    localStorage.removeItem("cart");
+
+    setTimeout(() => {
+        window.location.href = "index.html";
+    }, 1000);
+}
+
+
+
+
+
+
+
+
+function getCustomerDetails() {
+    const name = document.getElementById("cust-name").value.trim();
+    const mobile = document.getElementById("cust-mobile").value.trim();
+    const address = document.getElementById("cust-address").value.trim();
+
+    if (!name || !mobile || !address) {
+        alert("Please fill all delivery details");
+        return null;
+    }
+
+    if (mobile.length !== 10 || isNaN(mobile)) {
+        alert("Please enter a valid 10-digit mobile number");
+        return null;
+    }
+
+    return { name, mobile, address };
+}
+</script>
+<script>
+let detailsConfirmed = false;
+
+document.getElementById("confirm-details-btn").onclick = function () {
+
+    const name = document.getElementById("cust-name").value.trim();
+    const mobile = document.getElementById("cust-mobile").value.trim();
+    const address = document.getElementById("cust-address").value.trim();
+
+    if (!name || !mobile || !address) {
+        document.getElementById("details-msg").style.display = "block";
+        return;
+    }
+
+    if (mobile.length !== 10 || isNaN(mobile)) {
+        alert("Enter valid 10-digit mobile number");
+        return;
+    }
+
+    detailsConfirmed = true;
+
+    // Unlock payment options
+    document.querySelectorAll(".payment-radio").forEach(opt => {
+        opt.classList.remove("disabled");
+        opt.querySelector("input").disabled = false;
+    });
+
+    document.getElementById("details-msg").style.display = "none";
+
+    alert("Delivery details confirmed. Please select payment method.");
+};
+</script>
+
+</body>
+</html>
