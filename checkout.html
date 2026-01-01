@@ -158,6 +158,9 @@ function confirmOrder(paymentMode) {
     const orderId = "ORD" + Math.floor(100000 + Math.random()*900000);
     const otp = Math.floor(100000 + Math.random()*900000);
 
+
+
+    
     let msg = "🛍️ New Saree Order\n\n";
     msg += `👤 Name: ${name}%0A`;
     msg += `📞 Mobile: ${mobile}%0A`;
@@ -174,9 +177,7 @@ function confirmOrder(paymentMode) {
     msg += `💳 Payment: ${paymentMode}%0A`;
     msg += `🆔 Order ID: ${orderId}%0A`;
     msg += `🔐 Delivery OTP: ${otp}%0A%0A`;
-    msg += `🔑 Admin Dashboard:%0A`;
-    msg += `https://abhiy9228-oss.github.io/sarees-karts/admin-dashboard.html`;
-
+    
     window.open(`https://wa.me/918019973283?text=${msg}`, "_blank");
 
     localStorage.removeItem("cart");

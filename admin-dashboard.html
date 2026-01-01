@@ -1,100 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { background:#f5f5f5; }
+.admin-box {
+    max-width:900px;
+    margin:30px auto;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+}
+.order {
+    border:1px solid #ddd;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:6px;
+}
+.order img {
+    width:70px;
+    border-radius:5px;
+    margin-right:10px;
+}
+</style>
 </head>
 <body>
 
-<header>
-    <h1>🧑‍💼 Admin Dashboard</h1>
-</header>
+<script>
+const ADMIN_PASSWORD = "sareekart@123";
+const entered = prompt("Enter Admin Password");
+if (entered !== ADMIN_PASSWORD) {
+    alert("Access Denied");
+    document.body.innerHTML = "";
+}
+</script>
 
-<section style="padding:20px;max-width:900px;margin:auto;">
-    <h2>Active Orders</h2>
-    <div id="orders-container"></div>
-</section>
+<div class="admin-box">
+<h2>🛠️ Admin Dashboard</h2>
+<hr>
+<div id="orders"></div>
+</div>
 
 <script>
 let orders = JSON.parse(localStorage.getItem("orders")) || [];
-const container = document.getElementById("orders-container");
+const box = document.getElementById("orders");
 
-function renderOrders() {
-    container.innerHTML = "";
-
-    if (orders.length === 0) {
-        container.innerHTML = "<p>No active orders 🎉</p>";
-        return;
-    }
-
-    orders.forEach((order, index) => {
-
-        let itemsHTML = "";
-        order.items.forEach(item => {
-            itemsHTML += `
-                <div style="display:flex;align-items:center;margin-bottom:8px;">
-                    <img src="${item.image}"
-                         style="width:60px;height:60px;border-radius:5px;margin-right:10px;">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        ₹${item.price}
-                    </div>
-                </div>
-            `;
-        });
-
-        const card = document.createElement("div");
-        card.style.border = "2px solid #e91e63";
-        card.style.borderRadius = "10px";
-        card.style.padding = "15px";
-        card.style.marginBottom = "20px";
-        card.style.background = "#fff0f5";
-
-        card.innerHTML = `
-            <h3>Order ID: ${order.orderId}</h3>
-            <p><strong>Name:</strong> ${order.name}</p>
-            <p><strong>Mobile:</strong> ${order.mobile}</p>
-            <p><strong>Address:</strong> ${order.address}</p>
-            <p><strong>Payment:</strong> ${order.paymentMode}</p>
-            <p><strong>Total:</strong> ₹${order.total}</p>
-
-            <h4>Items</h4>
-            ${itemsHTML}
-
-            <hr>
-
-            <label><strong>Enter Delivery OTP</strong></label><br>
-            <input type="number" id="otp-${index}"
-                   placeholder="Enter OTP"
-                   style="padding:8px;width:150px;margin-top:5px;">
-
-            <button onclick="verifyOTP(${index})"
-                style="background:#4CAF50;color:white;padding:8px 15px;border:none;border-radius:5px;margin-left:10px;">
-                Verify & Mark Delivered
-            </button>
-        `;
-
-        container.appendChild(card);
-    });
+if (orders.length === 0) {
+    box.innerHTML = "<p>No orders available</p>";
 }
+
+orders.forEach((order, index) => {
+
+    let itemsHTML = "";
+    order.items.forEach(i => {
+        itemsHTML += `
+        <div style="display:flex;align-items:center;margin:6px 0;">
+            <img src="${i.image}">
+            <div style="margin-left:10px;">
+                ${i.name}<br>₹${i.price}
+            </div>
+        </div>`;
+    });
+
+    box.innerHTML += `
+    <div class="order">
+        <b>Order ID:</b> ${order.orderId}<br>
+        <b>Name:</b> ${order.name}<br>
+        <b>Mobile:</b> ${order.mobile}<br>
+        <b>Address:</b> ${order.address}<br>
+        <b>Payment:</b> ${order.paymentMode}<br><br>
+
+        ${itemsHTML}
+
+        <br>
+        <input id="otp-${index}" placeholder="Enter OTP">
+        <br><br>
+        <button onclick="verifyOTP(${index})">Verify & Deliver</button>
+    </div>`;
+});
 
 function verifyOTP(index) {
-    const enteredOTP = document.getElementById(`otp-${index}`).value;
-
-    if (enteredOTP == orders[index].otp) {
-        alert("✅ Order Delivered Successfully");
-
+    const val = document.getElementById("otp-" + index).value;
+    if (Number(val) === orders[index].otp) {
+        alert("Delivered ✅");
         orders.splice(index, 1);
         localStorage.setItem("orders", JSON.stringify(orders));
-
-        renderOrders();
+        location.reload();
     } else {
-        alert("❌ Invalid OTP");
+        alert("Wrong OTP ❌");
     }
 }
-
-renderOrders();
 </script>
 
 </body>
